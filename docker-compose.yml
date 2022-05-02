@@ -3,7 +3,7 @@ services:
   app:
     build: .
     volumes:
-      - /usr/app/node_modules
+      - /usr/src/app/node_modules
     container_name: docker-maps
     restart: always
     working_dir: /usr/src/app    
