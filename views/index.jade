@@ -1,0 +1,53 @@
+extends layout
+
+block content
+  div(id="map")
+  script.
+    var map = L.map('map').setView([43.294264019357556, -5.721740550556461], 10);
+
+    var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    const iconUrl = `/leaflet/images/marker-icon-#{colorIcon}.png`
+
+    console.log(iconUrl)
+
+    function createCustomIcon (feature, latlng) {
+      let myIcon = L.icon({
+        iconUrl: iconUrl,
+        iconSize: [28, 41],
+        iconAnchor: [14, 40],
+        popupAnchor: [0, -41]
+      })
+      return L.marker(latlng, { icon: myIcon })
+    }
+
+    function onEachFeature(feature, layer) {
+      // does this feature have a property named popupContent?
+      if (feature.properties && feature.properties.popupContent) {
+        layer.bindPopup(feature.properties.popupContent);
+      }
+    }
+  
+    try {
+      var geojson = JSON.parse('!{JSON.stringify(geojson)}')
+      var geojsonFeature = L.geoJSON(geojson, {
+        onEachFeature: onEachFeature,
+        pointToLayer: createCustomIcon
+      });
+      geojsonFeature.addTo(map);
+
+      map.fitBounds(geojsonFeature.getBounds());      
+    } catch(e) {
+      console.error(`Bad JSON received: ${e}`)
+    }
+
+    L.control.locate({
+      flyTo: true,
+      showCompass: true
+    }).addTo(map);
+
+    
+  
