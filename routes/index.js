@@ -22,8 +22,8 @@ router.get('/', function(req, res, next) {
   }
 
   // First, checks the geojson parameter (top priority)
-  if (req.query.geojson) {
-    try {
+  try {
+    if (req.query.geojson) {
       geojson = JSON.parse(req.query.geojson)
       if(!gjv.valid(geojson)) {
         geojson = { type : "FeatureCollection", features: []}
@@ -31,26 +31,20 @@ router.get('/', function(req, res, next) {
         const trace = gjv.isFeature(req.query.geojson, true)
         console.error(trace)
       } 
-    } catch (e) {
-      geojson = { type : "FeatureCollection", features: []}
-      console.error('Not a valid GeoJSON ' + e)
+      res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
     }
-    res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
-  }
-
-  // It could receive the URL to the configuration file
-  if (req.query.url && req.query.locale) {
-    fetch(req.query.url)
-    .then(res => res.json())
-    .then(json => {
-      try {
+    // It could receive the URL to the configuration file
+    if (req.query.url && req.query.locale) {
+      fetch(req.query.url)
+      .then(res => res.json())
+      .then(json => {
         const items = json.content[req.query.locale].pois
         for (let i = 0; i < items.length; i++) {
           const element = items[i];
           geojson.features.push({
             type: "Feature",
             properties: {
-              popupContent: element.name
+              popupContent: element.name.replace(/"/g, "&quot;").replace(/'/g, "&#039;")
             },
             geometry: {
               type: "Point",
@@ -65,14 +59,18 @@ router.get('/', function(req, res, next) {
           const trace = gjv.isFeature(geojson, true)
           console.error(trace)
         } 
-        res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
-      } catch(e) {
+        res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color }); 
+      }).catch(err => {
         console.error(`I cannot parse the JSON file (request query: ${req.query})`)
-        console.error(e)
+        console.error(err)
         geojson = { type : "FeatureCollection", features: []}
         res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
-      }
-    })
+      })
+    }
+  } catch (e) {
+    geojson = { type : "FeatureCollection", features: []}
+    console.error('Not a valid GeoJSON ' + e)
+    res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
   }
 });
 
