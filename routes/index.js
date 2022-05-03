@@ -61,7 +61,7 @@ router.get('/', function(req, res, next) {
         } 
         res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color }); 
       }).catch(err => {
-        console.error(`I cannot parse the JSON file (request query: ${req.query})`)
+        console.error(`I cannot parse the JSON file (request query: ${JSON.stringify(req.query)})`)
         console.error(err)
         geojson = { type : "FeatureCollection", features: []}
         res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
