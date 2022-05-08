@@ -66,6 +66,9 @@ router.get('/', function(req, res, next) {
         geojson = { type : "FeatureCollection", features: []}
         res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
       })
+    } else {
+      geojson = { type : "FeatureCollection", features: []}
+      res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });    
     }
   } catch (e) {
     geojson = { type : "FeatureCollection", features: []}
