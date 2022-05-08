@@ -32,9 +32,8 @@ router.get('/', function(req, res, next) {
         console.error(trace)
       } 
       res.render('index', { title: 'Map Generator', geojson: geojson, colorIcon: color });
-    }
-    // It could receive the URL to the configuration file
-    if (req.query.url && req.query.locale) {
+    } else if (req.query.url && req.query.locale) {
+      // It could receive the URL to the configuration file
       fetch(req.query.url)
       .then(res => res.json())
       .then(json => {
